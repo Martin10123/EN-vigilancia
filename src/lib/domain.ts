@@ -61,7 +61,12 @@ export function mensajeError(error: unknown) {
       : error instanceof Error
         ? error.message
         : 'No se pudo completar la acción.'
-  if (texto.includes('Failed to fetch') || texto.includes('NetworkError') || texto.includes('Load failed')) {
+  if (
+    texto.includes('Failed to fetch') ||
+    texto.includes('Failed to send a request to the Edge Function') ||
+    texto.includes('NetworkError') ||
+    texto.includes('Load failed')
+  ) {
     return 'No hay conexión con el servidor.'
   }
   return texto

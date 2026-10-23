@@ -1,5 +1,6 @@
 import { del, get, keys, set, createStore } from 'idb-keyval'
 import { ref } from 'vue'
+import { anotar } from '@/lib/bitacora'
 import { esFallaDeRed } from '@/lib/domain'
 import { blobABase64 } from '@/lib/media'
 import { supabase } from '@/lib/supabase'
@@ -57,8 +58,14 @@ async function publicar(evento: EventoLocal, offline: boolean) {
       foto: evento.foto ? await blobABase64(evento.foto) : '',
     },
   })
-  if (error) throw error
-  if (data?.error) throw new Error(data.error)
+  if (error) {
+    anotar('No se pudo enviar el registro.', error.message, evento.clase)
+    throw error
+  }
+  if (data?.error) {
+    anotar(String(data.error), evento.clase, evento.clase)
+    throw new Error(data.error)
+  }
   return data as { ok: boolean; punto?: string | null }
 }
 

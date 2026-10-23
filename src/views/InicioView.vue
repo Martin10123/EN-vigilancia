@@ -120,6 +120,17 @@ const resumen = useQuery({
   },
 })
 
+const errores = useQuery({
+  queryKey: ['bitacora-hoy'],
+  enabled: esAdmin,
+  queryFn: async () => {
+    const desde = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+    const { count, error } = await supabase.from('bitacora').select('id', { count: 'exact', head: true }).gte('creado_en', desde)
+    if (error) throw error
+    return count ?? 0
+  },
+})
+
 function claveDia(iso: string) {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(iso))
 }
@@ -295,6 +306,11 @@ async function ayudar(vigilanteId: string, canal: 'llamada' | 'mensaje') {
           <p class="text-sm text-slate-500">Alertas sin leer</p>
           <p class="mt-1 text-3xl font-semibold tracking-tight">{{ resumen.data.value?.alertas.length ?? 0 }}</p>
           <p class="mt-2 text-sm text-slate-600">{{ alertasPorTipo.map((fila) => `${fila.total} ${fila.nombre}`).join(' · ') || 'Nada pendiente' }}</p>
+        </RouterLink>
+        <RouterLink to="/bitacora" class="rounded-3xl bg-white p-4">
+          <p class="text-sm text-slate-500">Errores del celular</p>
+          <p class="mt-1 text-3xl font-semibold tracking-tight">{{ errores.data.value ?? 0 }}</p>
+          <p class="mt-2 text-sm text-slate-600">Últimas 24 horas</p>
         </RouterLink>
       </div>
       <div v-if="!turnos.isLoading.value" class="mt-3 grid gap-3 lg:grid-cols-[1.4fr_0.8fr]">

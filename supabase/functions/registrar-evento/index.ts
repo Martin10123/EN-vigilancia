@@ -1,9 +1,15 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
+const cors = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+}
+
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...cors },
   })
 
 function bytesDeBase64(valor: string) {
@@ -20,6 +26,7 @@ async function sha256(bytes: Uint8Array) {
 }
 
 Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
   if (req.method !== 'POST') return json({ error: 'Método no permitido.' }, 405)
 
   const url = Deno.env.get('SUPABASE_URL')
@@ -68,7 +75,15 @@ Deno.serve(async (req) => {
 
   if (error || data?.ok === false) {
     if (path) await admin.storage.from('evidencias').remove([path])
-    return json({ error: data?.error || error?.message || 'No se pudo registrar.' })
+    const mensaje = data?.error || error?.message || 'No se pudo registrar.'
+    await admin.from('bitacora').insert({
+      perfil_id: perfil.id,
+      nivel: 'error',
+      origen: 'servidor',
+      mensaje: String(mensaje).slice(0, 500),
+      detalle: String(body.clase ?? '').slice(0, 40),
+    })
+    return json({ error: mensaje })
   }
 
   return json({ ok: true, punto: data?.punto ?? null })

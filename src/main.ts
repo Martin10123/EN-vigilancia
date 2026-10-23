@@ -3,6 +3,8 @@ import { createPinia } from 'pinia'
 import PrimeVue from 'primevue/config'
 import { createApp } from 'vue'
 import App from './App.vue'
+import { anotar } from './lib/bitacora'
+import { mensajeError } from './lib/domain'
 import { primePt } from './prime'
 import router from './router'
 import './style.css'
@@ -18,9 +20,12 @@ const queryClient = new QueryClient({
   },
 })
 
-createApp(App)
-  .use(createPinia())
-  .use(router)
+const app = createApp(App)
+app.config.errorHandler = (error) => {
+  anotar(mensajeError(error), error instanceof Error ? error.stack : undefined, 'pantalla')
+}
+app.use(createPinia())
+app.use(router)
   .use(VueQueryPlugin, { queryClient })
   .use(PrimeVue, {
     unstyled: true,
@@ -37,4 +42,8 @@ createApp(App)
       clear: 'Limpiar',
     },
   })
-  .mount('#app')
+app.mount('#app')
+
+window.addEventListener('unhandledrejection', (evento) => {
+  anotar(mensajeError(evento.reason), undefined, 'promesa')
+})
