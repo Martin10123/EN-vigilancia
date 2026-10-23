@@ -120,17 +120,6 @@ const resumen = useQuery({
   },
 })
 
-const errores = useQuery({
-  queryKey: ['bitacora-hoy'],
-  enabled: esAdmin,
-  queryFn: async () => {
-    const desde = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-    const { count, error } = await supabase.from('bitacora').select('id', { count: 'exact', head: true }).gte('creado_en', desde)
-    if (error) throw error
-    return count ?? 0
-  },
-})
-
 function claveDia(iso: string) {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(iso))
 }
@@ -307,11 +296,6 @@ async function ayudar(vigilanteId: string, canal: 'llamada' | 'mensaje') {
           <p class="mt-1 text-3xl font-semibold tracking-tight">{{ resumen.data.value?.alertas.length ?? 0 }}</p>
           <p class="mt-2 text-sm text-slate-600">{{ alertasPorTipo.map((fila) => `${fila.total} ${fila.nombre}`).join(' · ') || 'Nada pendiente' }}</p>
         </RouterLink>
-        <RouterLink to="/bitacora" class="rounded-3xl bg-white p-4">
-          <p class="text-sm text-slate-500">Errores del celular</p>
-          <p class="mt-1 text-3xl font-semibold tracking-tight">{{ errores.data.value ?? 0 }}</p>
-          <p class="mt-2 text-sm text-slate-600">Últimas 24 horas</p>
-        </RouterLink>
       </div>
       <div v-if="!turnos.isLoading.value" class="mt-3 grid gap-3 lg:grid-cols-[1.4fr_0.8fr]">
         <section class="rounded-3xl bg-white p-4">
@@ -338,7 +322,10 @@ async function ayudar(vigilanteId: string, canal: 'llamada' | 'mensaje') {
           <p class="text-sm text-slate-500">Pedidos en 7 días</p>
         </section>
       </div>
-      <h2 v-if="!turnos.isLoading.value" class="mt-8 text-xl font-semibold">Turnos de hoy</h2>
+      <div v-if="!turnos.isLoading.value" class="mt-8 flex items-baseline justify-between gap-3">
+        <h2 class="text-xl font-semibold">Turnos de hoy</h2>
+        <RouterLink to="/qr/caseta" class="text-sm font-semibold text-marca">QR de la caseta</RouterLink>
+      </div>
       <ul v-if="!turnos.isLoading.value" class="mt-4 space-y-3">
         <li v-for="turno in turnos.data.value ?? []" :key="turno.id" class="rounded-3xl bg-white p-4">
           <p class="font-semibold">{{ turno.vigilante?.nombre }} · {{ nombreEstado(turno.estado) }}</p>
@@ -347,7 +334,6 @@ async function ayudar(vigilanteId: string, canal: 'llamada' | 'mensaje') {
           <p class="text-sm">Salida: {{ textoHora(marcacion(turno, 'salida')) }}</p>
           <p class="text-sm text-slate-600">Rondas: {{ (turno.rondas ?? []).map((ronda) => nombreEstado(ronda.estado)).join(', ') || 'Sin iniciar' }}</p>
           <FotoPrivada class="mt-3" :path="marcacion(turno, 'entrada')?.selfie_path" alt="Selfie de entrada" />
-          <RouterLink :to="`/qr/caseta/${turno.id}`" class="mt-3 inline-flex text-sm font-semibold text-marca">Imprimir QR de caseta</RouterLink>
         </li>
       </ul>
       <h2 class="mt-8 text-xl font-semibold">Pedidos de ayuda</h2>

@@ -2,6 +2,7 @@
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import InputText from 'primevue/inputtext'
 import { ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import Boton from '@/components/Boton.vue'
 import PantallaCarga from '@/components/PantallaCarga.vue'
 import Campo from '@/components/Campo.vue'
@@ -14,6 +15,7 @@ import { useToast } from '@/stores/toast'
 type Conjunto = { nombre: string; lat: number | null; lng: number | null; radio_m: number }
 
 const toast = useToast()
+const router = useRouter()
 const queryClient = useQueryClient()
 const nombre = ref('')
 const lat = ref('')
@@ -42,6 +44,19 @@ async function usarAqui() {
     toast.ok('Ubicación leída una vez. Guárdala si estás en la caseta.')
   } catch (error) {
     toast.error(mensajeError(error))
+  }
+}
+
+async function rotar() {
+  guardando.value = true
+  try {
+    await rpc('rotar_caseta')
+    toast.ok('El QR anterior ya no sirve. Imprime este.')
+    await router.push('/qr/caseta')
+  } catch (error) {
+    toast.error(mensajeError(error))
+  } finally {
+    guardando.value = false
   }
 }
 
@@ -78,5 +93,9 @@ async function guardar() {
         <Boton tipo="submit" :disabled="guardando">Guardar</Boton>
       </div>
     </form>
+    <div v-if="!conjunto.isLoading.value" class="mt-6 flex flex-wrap gap-3 text-sm">
+      <RouterLink to="/qr/caseta" class="font-semibold text-marca">Imprimir QR de la caseta</RouterLink>
+      <button type="button" class="font-semibold" :disabled="guardando" @click="rotar">Invalidar QR</button>
+    </div>
   </section>
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useOnline } from '@vueuse/core'
-import { Bell, Calendar, CalendarClock, House, LogOut, MapPin, Menu, ScrollText, ShieldAlert, Siren, Smartphone, Users, X } from 'lucide-vue-next'
+import { Bell, Calendar, CalendarClock, House, LogOut, MapPin, Menu, ShieldAlert, Siren, Smartphone, Users, X } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import PantallaCarga from '@/components/PantallaCarga.vue'
@@ -26,7 +26,6 @@ const enlaces = computed(() => {
     { to: '/ventanas', nombre: 'Ventanas', icono: CalendarClock, visible: admin },
     { to: '/incidentes', nombre: 'Incidentes', icono: Siren, visible: admin },
     { to: '/alertas', nombre: 'Alertas', icono: Bell, visible: admin },
-    { to: '/bitacora', nombre: 'Bitácora', icono: ScrollText, visible: admin },
     { to: '/conjunto', nombre: 'Conjunto', icono: ShieldAlert, visible: admin },
     { to: '/usuarios', nombre: 'Usuarios', icono: Users, visible: admin },
   ]

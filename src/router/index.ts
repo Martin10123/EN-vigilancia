@@ -35,6 +35,7 @@ const router = createRouter({
         { path: 'bitacora', name: 'bitacora', component: () => import('@/views/admin/BitacoraView.vue'), meta: { titulo: 'Bitácora', roles: ['administrador'] } },
         { path: 'usuarios', name: 'usuarios', component: () => import('@/views/admin/UsuariosView.vue'), meta: { titulo: 'Usuarios', roles: ['administrador'] } },
         { path: 'conjunto', name: 'conjunto', component: () => import('@/views/admin/ConjuntoView.vue'), meta: { titulo: 'Conjunto', roles: ['administrador'] } },
+        { path: 'qr/caseta', name: 'qr-caseta', component: () => import('@/views/QrView.vue'), meta: { titulo: 'QR', roles: ['administrador'] } },
         { path: 'qr/:clase/:id', name: 'qr', component: () => import('@/views/QrView.vue'), meta: { titulo: 'QR', roles: ['administrador'] } },
         { path: 'perfil', name: 'perfil', component: () => import('@/views/PerfilView.vue'), meta: { titulo: 'Mi perfil' } },
       ],

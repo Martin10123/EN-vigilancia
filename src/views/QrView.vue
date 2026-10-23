@@ -12,20 +12,21 @@ const canvas = ref<HTMLCanvasElement | null>(null)
 const token = ref('')
 const error = ref('')
 const titulo = computed(() => (route.params.clase === 'punto' ? 'Punto de control' : 'Caseta'))
+const esCaseta = computed(() => route.name === 'qr-caseta' || route.params.clase === 'caseta')
 
 function imprimir() {
   window.print()
 }
 
 watch(
-  () => [route.params.clase, route.params.id] as const,
-  async ([clase, id]) => {
+  () => route.fullPath,
+  async () => {
     error.value = ''
     token.value = ''
     try {
-      token.value = clase === 'punto'
-        ? await rpc<string>('token_punto', { punto_id: id })
-        : await rpc<string>('token_caseta', { turno_id: id })
+      token.value = esCaseta.value
+        ? await rpc<string>('token_caseta')
+        : await rpc<string>('token_punto', { punto_id: String(route.params.id) })
     } catch (causa) {
       error.value = mensajeError(causa)
     }

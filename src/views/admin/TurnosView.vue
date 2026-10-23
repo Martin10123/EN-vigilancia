@@ -2,7 +2,6 @@
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import Select from 'primevue/select'
 import { computed, ref, watch } from 'vue'
-import { RouterLink } from 'vue-router'
 import Boton from '@/components/Boton.vue'
 import PantallaCarga from '@/components/PantallaCarga.vue'
 import Campo from '@/components/Campo.vue'
@@ -85,11 +84,8 @@ function nombreDe(id: string) {
 
 function quienes(indice: number, ids: string[]) {
   const total = ids.length
-  const bloque = Math.floor(indice / 2)
-  const mitad = Math.floor(bloque / 2)
-  const dia = bloque % 2 === 0 ? mitad % total : (2 + Math.floor((bloque - 1) / 2)) % total
-  const noche = bloque % 2 === 0 ? (1 + mitad) % total : Math.floor((bloque - 1) / 2) % total
-  return { manana: ids[dia], noche: ids[noche] }
+  const bloque = Math.floor(indice / 2) % total
+  return { manana: ids[(total - bloque) % total], noche: ids[(1 - bloque + total) % total] }
 }
 
 const disponibles = computed(() => (vigilantes.data.value ?? []).filter((fila) => !orden.value.includes(fila.id)))
@@ -97,7 +93,7 @@ const disponibles = computed(() => (vigilantes.data.value ?? []).filter((fila) =
 const muestra = computed(() => {
   if (!/^\d{4}-\d{2}-\d{2}/.test(ancla.value) || orden.value.length < 3) return []
   const base = leerFecha(ancla.value)
-  const dias = Math.min(orden.value.length * 2, 14)
+  const dias = orden.value.length * 2
   return Array.from({ length: dias }, (_, indice) => {
     const fecha = new Date(base)
     fecha.setDate(base.getDate() + indice)
@@ -283,9 +279,8 @@ async function cancelar(id: string) {
       <li v-for="turno in turnos.data.value ?? []" :key="turno.id" class="rounded-2xl bg-white p-4 text-sm">
         <p class="font-semibold">{{ turno.vigilante?.nombre }} · {{ nombreEstado(turno.estado) }}</p>
         <p class="text-slate-600">{{ fechaHora(turno.inicio) }} – {{ fechaHora(turno.fin) }}</p>
-        <div class="mt-2 flex flex-wrap gap-3">
-          <RouterLink v-if="turno.estado !== 'cancelado'" :to="`/qr/caseta/${turno.id}`" class="font-semibold text-marca">QR de caseta</RouterLink>
-          <button v-if="turno.estado === 'programado'" type="button" class="font-semibold text-rose-700" @click="cancelar(turno.id)">Cancelar</button>
+        <div v-if="turno.estado === 'programado'" class="mt-2">
+          <button type="button" class="font-semibold text-rose-700" @click="cancelar(turno.id)">Cancelar</button>
         </div>
       </li>
     </ul>

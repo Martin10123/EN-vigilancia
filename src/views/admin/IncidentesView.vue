@@ -17,7 +17,6 @@ type Incidente = {
   capturado_en: string
   offline: boolean
   foto_path: string
-  hash: string
   vigilante_id: string
   vigilante: { nombre: string } | null
 }
@@ -42,7 +41,7 @@ const incidentes = useQuery({
   queryFn: async () => {
     let consulta = supabase
       .from('incidentes')
-      .select('id, tipo, descripcion, capturado_en, offline, foto_path, hash, vigilante_id, vigilante:perfiles!incidentes_vigilante_id_fkey(nombre)')
+      .select('id, tipo, descripcion, capturado_en, offline, foto_path, vigilante_id, vigilante:perfiles!incidentes_vigilante_id_fkey(nombre)')
       .order('capturado_en', { ascending: false })
     if (tipo.value) consulta = consulta.eq('tipo', tipo.value)
     if (vigilante.value) consulta = consulta.eq('vigilante_id', vigilante.value)
@@ -63,7 +62,6 @@ function exportar() {
       vigilante: fila.vigilante?.nombre ?? '',
       tipo: nombreEstado(fila.tipo),
       descripcion: fila.descripcion,
-      hash: fila.hash,
     })),
   )
 }
@@ -95,7 +93,6 @@ function exportar() {
           {{ fechaHora(fila.capturado_en) }}
         </p>
         <p class="mt-2">{{ fila.descripcion }}</p>
-        <p class="mt-2 break-all text-xs text-slate-500">Hash {{ fila.hash }}</p>
         <FotoPrivada class="mt-3" :path="fila.foto_path" alt="Foto del incidente" />
       </li>
     </ul>
