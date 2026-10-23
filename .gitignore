@@ -1,0 +1,16 @@
+logs
+*.log
+npm-debug.log*
+node_modules
+dist
+dist-ssr
+*.local
+.env
+.env.*
+!.env.example
+supabase/.temp
+supabase/.branches
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store

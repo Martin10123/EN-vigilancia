@@ -1,0 +1,40 @@
+{
+  "name": "vigilancia",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "db:push": "supabase db push",
+    "functions:deploy": "supabase functions deploy crear-usuario && supabase functions deploy registrar-evento"
+  },
+  "dependencies": {
+    "@fontsource/plus-jakarta-sans": "^5.3.0",
+    "@supabase/supabase-js": "^2.118.0",
+    "@tanstack/vue-query": "^5.104.5",
+    "@vueuse/core": "^15.0.0",
+    "@zxing/browser": "^0.1.5",
+    "idb-keyval": "^6.3.0",
+    "lucide-vue-next": "^1.0.0",
+    "pinia": "^4.1.0",
+    "primevue": "^4.5.5",
+    "qrcode": "^1.5.4",
+    "vue": "^3.5.44",
+    "vue-router": "^5.4.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^24.19.2",
+    "@types/qrcode": "^1.5.6",
+    "@vitejs/plugin-vue": "^6.0.10",
+    "@vue/tsconfig": "^0.9.1",
+    "supabase": "^2.121.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.4",
+    "vite-plugin-pwa": "^2.0.0",
+    "vue-tsc": "^3.3.13"
+  }
+}
