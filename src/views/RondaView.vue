@@ -2,8 +2,8 @@
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import AvisoLimite from '@/components/AvisoLimite.vue'
 import CameraField from '@/components/CameraField.vue'
+import PantallaCarga from '@/components/PantallaCarga.vue'
 import LectorQr from '@/components/LectorQr.vue'
 import { rpc } from '@/lib/api'
 import { enviarEvento } from '@/lib/cola'
@@ -66,7 +66,7 @@ async function enviar(foto: Blob | null) {
       descripcion: '',
     })
     error.value = ''
-    if (resultado.encolado) error.value = 'Quedó en este celular. La hora oficial será la de la sincronización.'
+    if (resultado.encolado) error.value = 'Quedó en este celular.'
     token.value = ''
     await queryClient.invalidateQueries({ queryKey: ['ronda', turnoId.value] })
   } catch (causa) {
@@ -81,9 +81,7 @@ async function enviar(foto: Blob | null) {
   <section class="max-w-xl">
     <button type="button" class="text-sm font-semibold text-marca" @click="router.push('/')">Volver</button>
     <h1 class="mt-2 text-3xl font-semibold tracking-tight">{{ estado.data.value?.ventana?.nombre ?? 'Ronda' }}</h1>
-    <AvisoLimite clave="gps" class="mt-4" />
-    <AvisoLimite clave="offline" class="mt-3" />
-    <p v-if="estado.isLoading.value" class="mt-4 text-sm text-slate-500">Cargando…</p>
+    <PantallaCarga v-if="estado.isLoading.value || enviando" :fija="enviando" />
     <p v-else-if="estado.data.value?.fuera" class="mt-4 rounded-2xl bg-white p-4 text-sm">{{ estado.data.value.mensaje }}</p>
     <template v-else>
       <ul class="mt-4 space-y-2">

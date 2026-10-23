@@ -1,0 +1,97 @@
+-- Turno 2x2: dos días de 06:00 a 18:00 y dos noches de 18:00 a 06:00 del día siguiente.
+-- El otro vigilante cubre el turno contrario. Se arma un año desde la fecha indicada.
+
+create or replace function private.generar_2x2(p_dia uuid, p_noche uuid, p_desde date)
+returns integer
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  i integer;
+  v_fecha date;
+  v_manana uuid;
+  v_noche uuid;
+  v_ini timestamptz;
+  v_fin timestamptz;
+  v_total integer := 0;
+  v_conjunto uuid := private.conjunto_unico();
+begin
+  if not private.es_admin() then
+    raise exception 'Solo el administrador puede hacer esto.';
+  end if;
+  if p_dia is null or p_noche is null or p_dia = p_noche then
+    raise exception 'Elige dos vigilantes distintos.';
+  end if;
+  if p_desde is null then
+    raise exception 'Indica desde qué día arranca el turno.';
+  end if;
+  if (
+    select count(*)
+    from public.perfiles p
+    join public.perfil_roles pr on pr.perfil_id = p.id
+    where p.id in (p_dia, p_noche) and p.activo and pr.rol_id = 'vigilante'
+  ) <> 2 then
+    raise exception 'Elige dos vigilantes activos.';
+  end if;
+
+  delete from public.turnos t
+  where t.vigilante_id in (p_dia, p_noche)
+    and t.estado = 'programado'
+    and t.fin > now()
+    and not exists (select 1 from public.marcaciones m where m.turno_id = t.id);
+
+  for i in 0..364 loop
+    v_fecha := p_desde + i;
+    if (i % 4) < 2 then
+      v_manana := p_dia;
+      v_noche := p_noche;
+    else
+      v_manana := p_noche;
+      v_noche := p_dia;
+    end if;
+
+    v_ini := (v_fecha::timestamp + time '06:00') at time zone 'America/Bogota';
+    v_fin := (v_fecha::timestamp + time '18:00') at time zone 'America/Bogota';
+    if v_fin > now() and not exists (
+      select 1 from public.turnos
+      where vigilante_id = v_manana
+        and estado <> 'cancelado'
+        and inicio < v_fin
+        and fin > v_ini
+    ) then
+      insert into public.turnos (conjunto_id, vigilante_id, inicio, fin)
+      values (v_conjunto, v_manana, v_ini, v_fin);
+      v_total := v_total + 1;
+    end if;
+
+    v_ini := (v_fecha::timestamp + time '18:00') at time zone 'America/Bogota';
+    v_fin := ((v_fecha + 1)::timestamp + time '06:00') at time zone 'America/Bogota';
+    if v_fin > now() and not exists (
+      select 1 from public.turnos
+      where vigilante_id = v_noche
+        and estado <> 'cancelado'
+        and inicio < v_fin
+        and fin > v_ini
+    ) then
+      insert into public.turnos (conjunto_id, vigilante_id, inicio, fin)
+      values (v_conjunto, v_noche, v_ini, v_fin);
+      v_total := v_total + 1;
+    end if;
+  end loop;
+
+  return v_total;
+end;
+$$;
+
+create or replace function public.generar_2x2(vigilante_dia uuid, vigilante_noche uuid, desde date)
+returns integer
+language sql
+security invoker
+set search_path = public
+as $$ select private.generar_2x2(vigilante_dia, vigilante_noche, desde) $$;
+
+revoke all on function private.generar_2x2(uuid, uuid, date) from public, anon;
+revoke all on function public.generar_2x2(uuid, uuid, date) from public, anon;
+grant execute on function private.generar_2x2(uuid, uuid, date) to authenticated;
+grant execute on function public.generar_2x2(uuid, uuid, date) to authenticated;

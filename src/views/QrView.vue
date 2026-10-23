@@ -3,6 +3,7 @@ import QRCode from 'qrcode'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import Boton from '@/components/Boton.vue'
+import PantallaCarga from '@/components/PantallaCarga.vue'
 import { rpc } from '@/lib/api'
 import { mensajeError } from '@/lib/domain'
 
@@ -41,9 +42,9 @@ watch([token, canvas], async () => {
 <template>
   <section class="mx-auto max-w-md text-center">
     <h1 class="text-3xl font-semibold tracking-tight">QR de {{ titulo }}</h1>
-    <p class="mt-2 text-sm text-slate-600">Pégalo en el lugar. El de la caseta solo sirve durante ese turno.</p>
     <p v-if="error" class="mt-4 text-sm text-rose-700" role="alert">{{ error }}</p>
-    <canvas ref="canvas" class="mx-auto mt-6 rounded-2xl bg-white p-4" />
+    <PantallaCarga v-if="!token && !error" />
+    <canvas v-show="token" ref="canvas" class="mx-auto mt-6 rounded-2xl bg-white p-4" />
     <Boton class="no-print mt-4" @click="imprimir">Imprimir</Boton>
   </section>
 </template>

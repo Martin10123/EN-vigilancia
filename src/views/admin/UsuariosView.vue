@@ -4,6 +4,7 @@ import Checkbox from 'primevue/checkbox'
 import InputText from 'primevue/inputtext'
 import { ref } from 'vue'
 import Boton from '@/components/Boton.vue'
+import PantallaCarga from '@/components/PantallaCarga.vue'
 import Campo from '@/components/Campo.vue'
 import { rpc } from '@/lib/api'
 import { ROLES, mensajeError } from '@/lib/domain'
@@ -83,7 +84,7 @@ async function guardar(usuario: Usuario, siguientes: string[]) {
 <template>
   <section>
     <h1 class="text-3xl font-semibold tracking-tight">Usuarios</h1>
-    <p class="mt-2 text-sm text-slate-600">El registro público está cerrado. Crea aquí a vigilantes y residentes.</p>
+    <PantallaCarga v-if="guardando" fija />
     <form class="mt-5 grid gap-3 rounded-3xl bg-white p-4 sm:grid-cols-2" @submit.prevent="crear">
       <Campo etiqueta="Nombre"><InputText v-model="nombre" required /></Campo>
       <Campo etiqueta="Correo"><InputText v-model="email" type="email" required /></Campo>
@@ -98,7 +99,8 @@ async function guardar(usuario: Usuario, siguientes: string[]) {
       </fieldset>
       <Boton tipo="submit" :disabled="guardando">Crear usuario</Boton>
     </form>
-    <ul class="mt-6 space-y-3">
+    <PantallaCarga v-if="usuarios.isLoading.value" />
+    <ul v-else class="mt-6 space-y-3">
       <li v-for="usuario in usuarios.data.value ?? []" :key="usuario.id" class="rounded-2xl bg-white p-4 text-sm">
         <p class="font-semibold">{{ usuario.nombre }}</p>
         <p class="text-slate-500">{{ usuario.telefono || 'Sin teléfono' }} · {{ usuario.activo ? 'Activo' : 'Inactivo' }}</p>

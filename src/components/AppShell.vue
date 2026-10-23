@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useOnline } from '@vueuse/core'
-import { Bell, CalendarClock, House, LogOut, MapPin, Menu, ShieldAlert, Siren, Smartphone, Users, X } from 'lucide-vue-next'
+import { Bell, Calendar, CalendarClock, House, LogOut, MapPin, Menu, ShieldAlert, Siren, Smartphone, Users, X } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
+import PantallaCarga from '@/components/PantallaCarga.vue'
 import { pendientes, refrescarConteo, sincronizar } from '@/lib/cola'
 import { useSessionStore } from '@/stores/session'
 
@@ -17,6 +18,7 @@ const enlaces = computed(() => {
   const vigilante = session.tiene('vigilante')
   const items = [
     { to: '/', nombre: 'Inicio', icono: House, visible: true },
+    { to: '/calendario', nombre: 'Calendario', icono: Calendar, visible: vigilante },
     { to: '/incidentes/nuevo', nombre: 'Incidente', icono: Siren, visible: vigilante },
     { to: '/cola', nombre: pendientes.value > 0 ? `Pendientes (${pendientes.value})` : 'Pendientes', icono: Smartphone, visible: vigilante },
     { to: '/turnos', nombre: 'Turnos', icono: CalendarClock, visible: admin },
@@ -136,11 +138,16 @@ async function salir() {
           </div>
         </nav>
       </div>
-      <p v-if="!enLinea" class="no-print bg-amber-100 px-4 py-2 text-sm text-amber-950" role="status">
-        Sin conexión. Puedes dejar el registro en este celular. La hora oficial será la de la sincronización.
-      </p>
+      <p v-if="!enLinea" class="no-print bg-amber-100 px-4 py-2 text-sm text-amber-950" role="status">Sin conexión.</p>
       <main class="w-full px-3 py-3 pb-24 sm:px-4 md:px-5 md:py-4 md:pb-6">
-        <RouterView />
+        <RouterView v-slot="{ Component }">
+          <Suspense>
+            <component :is="Component" />
+            <template #fallback>
+              <PantallaCarga />
+            </template>
+          </Suspense>
+        </RouterView>
       </main>
     </div>
 

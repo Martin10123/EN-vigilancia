@@ -184,9 +184,9 @@ insert into public.conjuntos (nombre, radio_m)
 values ('Conjunto residencial', 150);
 
 insert into public.ventanas_ronda (conjunto_id, nombre, hora_inicio, hora_fin, orden)
-select id, 'Primera ronda', '20:00', '22:00', 1 from public.conjuntos
+select id, 'Primera ronda', '20:00'::time, '22:00'::time, 1 from public.conjuntos
 union all
-select id, 'Segunda ronda', '02:00', '04:00', 2 from public.conjuntos;
+select id, 'Segunda ronda', '02:00'::time, '04:00'::time, 2 from public.conjuntos;
 
 create or replace function private.perfil_actual()
 returns uuid

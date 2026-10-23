@@ -6,6 +6,10 @@ export const campoClase = campo
 export const primePt = {
   inputtext: { root: campo },
   textarea: { root: `${campo} min-h-20 py-2` },
+  inputnumber: {
+    root: 'w-full',
+    pcInputText: { root: campo },
+  },
   password: {
     root: 'relative block w-full',
     pcInputText: { root: `${campo} pr-12` },
@@ -69,6 +73,8 @@ export const primePt = {
     minutePicker: 'flex flex-col items-center gap-1',
     hour: 'text-lg font-semibold tabular-nums text-slate-900',
     minute: 'text-lg font-semibold tabular-nums text-slate-900',
+    ampmPicker: 'flex flex-col items-center gap-1',
+    ampm: 'text-sm font-semibold text-slate-700',
     separator: 'text-lg font-semibold text-slate-400',
     pcIncrementButton: { root: 'inline-flex size-8 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100', icon: 'size-4' },
     pcDecrementButton: { root: 'inline-flex size-8 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100', icon: 'size-4' },

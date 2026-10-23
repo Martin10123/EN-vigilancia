@@ -19,7 +19,9 @@ const { data, isLoading, isError } = useQuery({
 
 <template>
   <div v-if="path" class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
-    <p v-if="isLoading" class="px-3 py-6 text-sm text-slate-500">Cargando evidencia…</p>
+    <div v-if="isLoading" class="grid h-24 place-items-center" role="status" aria-label="Cargando">
+      <span class="size-6 rounded-full border-2 border-slate-200 border-t-marca motion-safe:animate-spin" aria-hidden="true" />
+    </div>
     <p v-else-if="isError" class="px-3 py-6 text-sm text-rose-700">No se pudo abrir la foto.</p>
     <img v-else-if="data" :src="data" :alt="alt" class="max-h-64 w-full object-contain" />
   </div>

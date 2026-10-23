@@ -54,18 +54,6 @@ export function fechaHora(valor: string | null | undefined) {
   }).format(new Date(valor))
 }
 
-export function aLocal(fecha: Date) {
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${fecha.getFullYear()}-${pad(fecha.getMonth() + 1)}-${pad(fecha.getDate())}T${pad(fecha.getHours())}:${pad(fecha.getMinutes())}`
-}
-
-export function turnoRapido(horaInicio: number) {
-  const inicio = new Date()
-  inicio.setHours(horaInicio, 0, 0, 0)
-  const fin = new Date(inicio.getTime() + 12 * 60 * 60 * 1000)
-  return { inicio: aLocal(inicio), fin: aLocal(fin) }
-}
-
 export function mensajeError(error: unknown) {
   const texto =
     error && typeof error === 'object' && 'message' in error && typeof error.message === 'string'

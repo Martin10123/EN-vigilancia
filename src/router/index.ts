@@ -1,6 +1,9 @@
+import { ref } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { supabaseConfigurado } from '@/lib/supabase'
 import { useSessionStore } from '@/stores/session'
+
+export const navegando = ref(true)
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -19,6 +22,7 @@ const router = createRouter({
       component: () => import('@/components/AppShell.vue'),
       children: [
         { path: '', name: 'inicio', component: () => import('@/views/InicioView.vue'), meta: { titulo: 'Inicio' } },
+        { path: 'calendario', name: 'calendario', component: () => import('@/views/CalendarioView.vue'), meta: { titulo: 'Calendario', roles: ['vigilante'] } },
         { path: 'marcar/:turnoId', name: 'marcar', component: () => import('@/views/MarcarView.vue'), meta: { titulo: 'Marcar', roles: ['vigilante'] } },
         { path: 'ronda/:turnoId', name: 'ronda', component: () => import('@/views/RondaView.vue'), meta: { titulo: 'Ronda', roles: ['vigilante'] } },
         { path: 'incidentes/nuevo', name: 'incidente-nuevo', component: () => import('@/views/IncidenteForm.vue'), meta: { titulo: 'Incidente', roles: ['vigilante'] } },
@@ -38,6 +42,7 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to) => {
+  navegando.value = true
   const session = useSessionStore()
   if (!session.listo) await session.cargar()
   if (!supabaseConfigurado) return to.name === 'login' ? true : { name: 'login' }
@@ -48,6 +53,14 @@ router.beforeEach(async (to) => {
   if (!session.session) return { name: 'login', query: { redirect: to.fullPath } }
   if (to.meta.roles && !session.tiene(...to.meta.roles)) return { name: 'inicio' }
   return true
+})
+
+router.afterEach(() => {
+  navegando.value = false
+})
+
+router.onError(() => {
+  navegando.value = false
 })
 
 export default router

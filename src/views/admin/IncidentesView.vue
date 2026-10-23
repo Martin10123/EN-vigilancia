@@ -2,11 +2,11 @@
 import { useQuery } from '@tanstack/vue-query'
 import Select from 'primevue/select'
 import { computed, ref } from 'vue'
-import AvisoLimite from '@/components/AvisoLimite.vue'
 import Boton from '@/components/Boton.vue'
+import PantallaCarga from '@/components/PantallaCarga.vue'
 import Campo from '@/components/Campo.vue'
+import FechaCampo from '@/components/FechaCampo.vue'
 import FotoPrivada from '@/components/FotoPrivada.vue'
-import { campoClase } from '@/prime'
 import { TIPOS_INCIDENTE, descargarCsv, fechaHora, nombreEstado } from '@/lib/domain'
 import { supabase } from '@/lib/supabase'
 
@@ -74,14 +74,12 @@ function exportar() {
     <div class="flex flex-wrap items-end justify-between gap-3">
       <div>
         <h1 class="text-3xl font-semibold tracking-tight">Incidentes</h1>
-        <p class="mt-2 text-sm text-slate-600">No se editan después de enviados.</p>
       </div>
       <Boton variante="secundario" :disabled="(incidentes.data.value ?? []).length === 0" @click="exportar">CSV</Boton>
     </div>
-    <AvisoLimite clave="hash" class="mt-4" />
     <div class="mt-4 grid gap-3 sm:grid-cols-4">
-      <Campo etiqueta="Desde"><input v-model="desde" type="date" :class="campoClase" /></Campo>
-      <Campo etiqueta="Hasta"><input v-model="hasta" type="date" :class="campoClase" /></Campo>
+      <Campo etiqueta="Desde"><FechaCampo v-model="desde" /></Campo>
+      <Campo etiqueta="Hasta"><FechaCampo v-model="hasta" /></Campo>
       <Campo etiqueta="Tipo">
         <Select v-model="tipo" :options="[{ id: '', nombre: 'Todos' }, ...TIPOS_INCIDENTE]" option-label="nombre" option-value="id" />
       </Campo>
@@ -89,11 +87,12 @@ function exportar() {
         <Select v-model="vigilante" :options="[{ id: '', nombre: 'Todos' }, ...(personas.data.value ?? [])]" option-label="nombre" option-value="id" />
       </Campo>
     </div>
-    <ul class="mt-4 space-y-3">
+    <PantallaCarga v-if="incidentes.isLoading.value" />
+    <ul v-else class="mt-4 space-y-3">
       <li v-for="fila in incidentes.data.value ?? []" :key="fila.id" class="rounded-3xl bg-white p-4 text-sm">
         <p class="font-semibold">{{ nombreEstado(fila.tipo) }} · {{ fila.vigilante?.nombre }}</p>
         <p class="text-slate-500">
-          {{ fila.offline ? `${fechaHora(fila.capturado_en)} · hora de sincronización, capturado sin conexión` : `${fechaHora(fila.capturado_en)} · hora del servidor` }}
+          {{ fechaHora(fila.capturado_en) }}
         </p>
         <p class="mt-2">{{ fila.descripcion }}</p>
         <p class="mt-2 break-all text-xs text-slate-500">Hash {{ fila.hash }}</p>

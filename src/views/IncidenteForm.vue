@@ -3,8 +3,8 @@ import Select from 'primevue/select'
 import Textarea from 'primevue/textarea'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import AvisoLimite from '@/components/AvisoLimite.vue'
 import Boton from '@/components/Boton.vue'
+import PantallaCarga from '@/components/PantallaCarga.vue'
 import CameraField from '@/components/CameraField.vue'
 import Campo from '@/components/Campo.vue'
 import { enviarEvento } from '@/lib/cola'
@@ -37,9 +37,7 @@ async function enviar() {
       tipo: tipo.value,
       descripcion: descripcion.value.trim(),
     })
-    listo.value = resultado.encolado
-      ? 'Quedó en este celular. No se podrá editar cuando sincronice, y la hora oficial será la de la sincronización.'
-      : 'Quedó enviado. No se puede editar.'
+    listo.value = resultado.encolado ? 'Quedó en este celular.' : 'Quedó enviado.'
   } catch (causa) {
     error.value = mensajeError(causa)
   } finally {
@@ -51,8 +49,7 @@ async function enviar() {
 <template>
   <section class="max-w-xl">
     <h1 class="text-3xl font-semibold tracking-tight">Incidente</h1>
-    <p class="mt-2 text-sm text-slate-600">Foto en vivo, hora del servidor y descripción. Después de enviado no se cambia.</p>
-    <AvisoLimite clave="hash" class="mt-4" />
+    <PantallaCarga v-if="enviando" fija />
     <form v-if="!listo" class="mt-4 space-y-3" @submit.prevent="enviar">
       <Campo etiqueta="Tipo">
         <Select v-model="tipo" :options="[...TIPOS_INCIDENTE]" option-label="nombre" option-value="id" />

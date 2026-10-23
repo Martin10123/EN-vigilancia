@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import Boton from '@/components/Boton.vue'
+import PantallaCarga from '@/components/PantallaCarga.vue'
 import { rpc } from '@/lib/api'
 import { descargarCsv, fechaHora, mensajeError, nombreEstado } from '@/lib/domain'
 import { supabase } from '@/lib/supabase'
@@ -48,11 +49,11 @@ function exportar() {
     <div class="flex items-end justify-between gap-3">
       <div>
         <h1 class="text-3xl font-semibold tracking-tight">Alertas</h1>
-        <p class="mt-2 text-sm text-slate-600">Entrada tarde, ronda incompleta o intento fuera del radio. Se calculan al abrir esta pantalla.</p>
       </div>
       <Boton variante="secundario" :disabled="(alertas.data.value ?? []).length === 0" @click="exportar">CSV</Boton>
     </div>
-    <ul class="mt-4 space-y-2">
+    <PantallaCarga v-if="alertas.isLoading.value" />
+    <ul v-else class="mt-4 space-y-2">
       <li v-for="alerta in alertas.data.value ?? []" :key="alerta.id" class="rounded-2xl bg-white p-4 text-sm">
         <p class="font-semibold">{{ nombreEstado(alerta.tipo) }}</p>
         <p class="text-slate-600">{{ alerta.detalle }}</p>

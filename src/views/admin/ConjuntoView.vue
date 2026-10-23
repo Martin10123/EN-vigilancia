@@ -3,8 +3,9 @@ import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import InputText from 'primevue/inputtext'
 import { ref, watch } from 'vue'
 import Boton from '@/components/Boton.vue'
+import PantallaCarga from '@/components/PantallaCarga.vue'
 import Campo from '@/components/Campo.vue'
-import { campoClase } from '@/prime'
+import NumeroCampo from '@/components/NumeroCampo.vue'
 import { rpc } from '@/lib/api'
 import { mensajeError } from '@/lib/domain'
 import { ubicacionActual } from '@/lib/geo'
@@ -17,7 +18,7 @@ const queryClient = useQueryClient()
 const nombre = ref('')
 const lat = ref('')
 const lng = ref('')
-const radio = ref(150)
+const radio = ref<number | null>(150)
 const guardando = ref(false)
 
 const conjunto = useQuery({
@@ -51,7 +52,7 @@ async function guardar() {
       nombre: nombre.value,
       lat: Number(lat.value),
       lng: Number(lng.value),
-      radio_m: Number(radio.value),
+      radio_m: radio.value ?? 150,
     })
     toast.ok('Conjunto actualizado.')
     await queryClient.invalidateQueries({ queryKey: ['conjunto'] })
@@ -66,12 +67,12 @@ async function guardar() {
 <template>
   <section class="max-w-xl">
     <h1 class="text-3xl font-semibold tracking-tight">Conjunto</h1>
-    <p class="mt-2 text-sm text-slate-600">La caseta es el centro. Cada marcación se acepta solo si cae dentro del radio. No se guarda un recorrido.</p>
-    <form class="mt-4 space-y-3" @submit.prevent="guardar">
+    <PantallaCarga v-if="conjunto.isLoading.value || guardando" :fija="guardando" />
+    <form v-else class="mt-4 space-y-3" @submit.prevent="guardar">
       <Campo etiqueta="Nombre"><InputText v-model="nombre" /></Campo>
       <Campo etiqueta="Latitud"><InputText v-model="lat" /></Campo>
       <Campo etiqueta="Longitud"><InputText v-model="lng" /></Campo>
-      <Campo etiqueta="Radio en metros" ayuda="150 m por defecto. Ajústalo al tamaño real del conjunto."><input v-model.number="radio" type="number" :class="campoClase" /></Campo>
+      <Campo etiqueta="Radio en metros" ayuda="150 m por defecto. Ajústalo al tamaño real del conjunto."><NumeroCampo v-model="radio" :min="30" :max="1000" /></Campo>
       <div class="flex flex-wrap gap-2">
         <Boton variante="secundario" @click="usarAqui">Usar donde estoy</Boton>
         <Boton tipo="submit" :disabled="guardando">Guardar</Boton>

@@ -7,6 +7,7 @@ import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import PantallaCarga from '@/components/PantallaCarga.vue'
 import { rpc } from '@/lib/api'
 import { mensajeError } from '@/lib/domain'
 import { supabase, supabaseConfigurado } from '@/lib/supabase'
@@ -113,12 +114,10 @@ async function crearAdmin() {
           class="w-full max-w-md rounded-3xl border border-white/50 bg-white/85 p-5 text-slate-900 shadow-2xl shadow-slate-950/30 backdrop-blur-xl sm:p-7"
           @submit.prevent="hayAdmin.data.value ? entrar() : crearAdmin()"
         >
+          <PantallaCarga v-if="hayAdmin.isLoading.value || enviando" fija />
           <h2 class="text-2xl font-semibold tracking-tight">{{ hayAdmin.data.value === false ? 'Crear administrador' : 'Entrar' }}</h2>
           <p class="mt-1 text-sm text-slate-600">
             {{ hayAdmin.data.value === false ? 'La primera cuenta administra el conjunto. Después el registro público se cierra.' : 'Usa el correo que te asignó la administración.' }}
-          </p>
-          <p v-if="!supabaseConfigurado" class="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
-            Falta el archivo .env con la URL y la clave anon de Supabase.
           </p>
           <p v-if="!enLinea" class="mt-4 rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-700">Estás sin conexión. El ingreso necesita red.</p>
           <div class="mt-5 space-y-4">
