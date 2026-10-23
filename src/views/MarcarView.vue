@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import CameraField from '@/components/CameraField.vue'
 import PantallaCarga from '@/components/PantallaCarga.vue'
 import LectorQr from '@/components/LectorQr.vue'
+import { exigirCercania } from '@/lib/cerca'
 import { enviarEvento } from '@/lib/cola'
 import { mensajeError } from '@/lib/domain'
 import { ubicacionActual } from '@/lib/geo'
@@ -24,7 +25,14 @@ async function leer(texto: string) {
   }
   token.value = texto
   error.value = ''
-  paso.value = 'selfie'
+  paso.value = 'enviando'
+  try {
+    await exigirCercania()
+    paso.value = 'selfie'
+  } catch (causa) {
+    error.value = mensajeError(causa)
+    paso.value = 'qr'
+  }
 }
 
 async function capturada(archivo: Blob) {

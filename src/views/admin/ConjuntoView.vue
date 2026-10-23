@@ -20,7 +20,7 @@ const queryClient = useQueryClient()
 const nombre = ref('')
 const lat = ref('')
 const lng = ref('')
-const radio = ref<number | null>(150)
+const radio = ref<number | null>(100)
 const guardando = ref(false)
 
 const conjunto = useQuery({
@@ -67,7 +67,7 @@ async function guardar() {
       nombre: nombre.value,
       lat: Number(lat.value),
       lng: Number(lng.value),
-      radio_m: radio.value ?? 150,
+      radio_m: radio.value ?? 100,
     })
     toast.ok('Conjunto actualizado.')
     await queryClient.invalidateQueries({ queryKey: ['conjunto'] })
@@ -87,7 +87,7 @@ async function guardar() {
       <Campo etiqueta="Nombre"><InputText v-model="nombre" /></Campo>
       <Campo etiqueta="Latitud"><InputText v-model="lat" /></Campo>
       <Campo etiqueta="Longitud"><InputText v-model="lng" /></Campo>
-      <Campo etiqueta="Radio en metros" ayuda="150 m por defecto. Ajústalo al tamaño real del conjunto."><NumeroCampo v-model="radio" :min="30" :max="1000" /></Campo>
+      <Campo etiqueta="Radio en metros" ayuda="100 m. El escaneo solo pasa dentro de este radio."><NumeroCampo v-model="radio" :min="30" :max="1000" /></Campo>
       <div class="flex flex-wrap gap-2">
         <Boton variante="secundario" @click="usarAqui">Usar donde estoy</Boton>
         <Boton tipo="submit" :disabled="guardando">Guardar</Boton>

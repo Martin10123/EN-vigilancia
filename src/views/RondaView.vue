@@ -6,6 +6,7 @@ import CameraField from '@/components/CameraField.vue'
 import PantallaCarga from '@/components/PantallaCarga.vue'
 import LectorQr from '@/components/LectorQr.vue'
 import { rpc } from '@/lib/api'
+import { exigirCercania } from '@/lib/cerca'
 import { enviarEvento } from '@/lib/cola'
 import { mensajeError, referenciaQr } from '@/lib/domain'
 import { ubicacionActual } from '@/lib/geo'
@@ -38,12 +39,22 @@ function empezar() {
   escaneando.value = true
 }
 
-function leer(texto: string) {
+async function leer(texto: string) {
   escaneando.value = false
   const refQr = referenciaQr(texto)
   if (refQr?.tipo !== 'punto') {
     error.value = 'Ese QR no es de un punto de control.'
     return
+  }
+  enviando.value = true
+  error.value = ''
+  try {
+    await exigirCercania()
+  } catch (causa) {
+    error.value = mensajeError(causa)
+    return
+  } finally {
+    enviando.value = false
   }
   token.value = texto
   const punto = (estado.data.value?.puntos ?? []).find((item) => item.id === refQr.ref)
